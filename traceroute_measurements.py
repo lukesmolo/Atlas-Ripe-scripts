@@ -1,5 +1,21 @@
 #/usr/bin/env python
 
+#Copyright (C) 2015 lukesmolo <lukesmolo@gmail.com>
+
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 import sys, traceback
 import json
 from pprint import pprint
@@ -42,6 +58,7 @@ req = {
 }
 global procede
 
+n_domains = 100
 
 def make_request(request):
     r = urllib2.Request(url)
@@ -67,7 +84,7 @@ def make_request(request):
            ret = False
            time.sleep(10)
 	elif code == 104:
-	  ret = -1
+            ret = -1
 
     except urllib2.URLError, error:
         ret = False
@@ -90,9 +107,6 @@ resume = False
 
 
 
-if len(sys.argv) == 3:
-    resume = True
-
 with open(fl) as data_file:
     data = json.load(data_file)
     for country in data:
@@ -101,7 +115,6 @@ with open(fl) as data_file:
         string = 'sites/'+country["country"]+"_sites"
         i = -1
         request = copy.deepcopy(req)
-        #pprint(line["country"])
         request_done = {}
         for probes in country["probes"]:
             request["probes"][0]["value"]+=(str(probes[0])+",")
@@ -109,36 +122,36 @@ with open(fl) as data_file:
         request["probes"][0]["value"] = request["probes"][0]["value"][:-1]
         request["probes"][0]["requested"] = str(country["n_probes"])
 
-        #print(country["probes"])
         request_done['country'] = country['country']
         request_done['n_sites'] = 0
         request_done['sites'] = []
 
+
         procede = False;
         f = open(string, 'r')
         counter = counter + 1
-        #print(country['country'])
-        if country['country'] != sys.argv[1] and resume == True:
+        if resume == True and country['country'] != sys.argv[1]:
             continue
         for line in f:
             procede = False;
             i = i+1
-            if i < 100:
+            if i < n_domains:
                 while procede == False:
+                    #print (country["country"]+ " " + str(probes[0]) + " " +line.strip())
                     request["definitions"][0]["target"] = line.strip()
                     request["definitions"][0]["description"] = (str(country['country'])+","+line.strip())
-                    if line.strip() != sys.argv[2] and resume == True:
+                    if resume == True and line.strip() != sys.argv[2]:
                        break
                     else:
                         resume = False
+	
                     procede = make_request(request)
                     if procede == -1:
-                        i=-1
+                        i-=1
                     request_done['n_sites'] = i+1
                     request_done['sites'].append(request["definitions"][0]["target"])
                 with open('requests_done/'+str(counter)+'.json', 'w') as outfile:
                     json_data = json.dump(request_done, outfile)
-
 
         all_requests_done.append(request_done)
 

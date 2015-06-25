@@ -1,5 +1,21 @@
 #/usr/bin/env python
 
+#Copyright (C) 2015 lukesmolo <lukesmolo@gmail.com>
+
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 import sys, traceback
 import json
 from pprint import pprint
@@ -43,6 +59,7 @@ req = {
 }
 global procede
 
+n_domains = 100
 
 def make_request(request):
     r = urllib2.Request(url)
@@ -65,9 +82,6 @@ def make_request(request):
     except urllib2.URLError, error:
         ret = False
 	time.sleep(10)
-        #print "ERROR: ", error
-    #results = json.load(conn)
-    #print("Measurement #%s started" % (results["measurements"]))
     return ret
 
 fl = './query_probes.json';
@@ -108,7 +122,7 @@ with open(fl) as data_file:
         for line in f:
             procede = False;
             i = i+1
-            if i < 100:
+            if i < n_domains:
 
                 while procede == False:
                     #print (country["country"]+ " " + str(probes[0]) + " " +line.strip())
